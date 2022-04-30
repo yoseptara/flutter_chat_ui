@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
+import 'package:intl/intl.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
 import '../models/emoji_enlargement_behavior.dart';
@@ -74,8 +75,7 @@ class Message extends StatelessWidget {
   final EmojiEnlargementBehavior emojiEnlargementBehavior;
 
   /// Build a file message inside predefined bubble
-  final Widget Function(types.FileMessage, {required int messageWidth})?
-      fileMessageBuilder;
+  final Widget Function(types.FileMessage, {required int messageWidth})? fileMessageBuilder;
 
   /// Hide background for messages containing only emojis.
   final bool hideBackgroundOnEmojiMessages;
@@ -106,8 +106,7 @@ class Message extends StatelessWidget {
   final void Function(BuildContext context, types.Message)? onMessageLongPress;
 
   /// Called when user makes a long press on status icon in any message
-  final void Function(BuildContext context, types.Message)?
-      onMessageStatusLongPress;
+  final void Function(BuildContext context, types.Message)? onMessageStatusLongPress;
 
   /// Called when user taps on status icon in any message
   final void Function(BuildContext context, types.Message)? onMessageStatusTap;
@@ -119,8 +118,7 @@ class Message extends StatelessWidget {
   final void Function(types.Message, bool visible)? onMessageVisibilityChanged;
 
   /// See [TextMessage.onPreviewDataFetched]
-  final void Function(types.TextMessage, types.PreviewData)?
-      onPreviewDataFetched;
+  final void Function(types.TextMessage, types.PreviewData)? onPreviewDataFetched;
 
   /// See [TextMessage.previewTapOptions]
   final PreviewTapOptions previewTapOptions;
@@ -172,8 +170,7 @@ class Message extends StatelessWidget {
             : Container(
                 decoration: BoxDecoration(
                   borderRadius: borderRadius,
-                  color: !currentUserIsAuthor ||
-                          message.type == types.MessageType.image
+                  color: !currentUserIsAuthor || message.type == types.MessageType.image
                       ? InheritedChatTheme.of(context).theme.secondaryColor
                       : InheritedChatTheme.of(context).theme.primaryColor,
                 ),
@@ -230,7 +227,19 @@ class Message extends StatelessWidget {
       case types.Status.delivered:
       case types.Status.sent:
         return InheritedChatTheme.of(context).theme.deliveredIcon != null
-            ? InheritedChatTheme.of(context).theme.deliveredIcon!
+            ? Column(
+                children: [
+                  InheritedChatTheme.of(context).theme.deliveredIcon!,
+                  const SizedBox(
+                    height: 8,
+                  ),
+                  Text(
+                    DateFormat.Hm().format(
+                      DateTime.fromMillisecondsSinceEpoch(message.updatedAt!),
+                    ),
+                  ),
+                ],
+              )
             : Image.asset(
                 'assets/icon-delivered.png',
                 color: InheritedChatTheme.of(context).theme.primaryColor,
@@ -246,7 +255,19 @@ class Message extends StatelessWidget {
               );
       case types.Status.seen:
         return InheritedChatTheme.of(context).theme.seenIcon != null
-            ? InheritedChatTheme.of(context).theme.seenIcon!
+            ? Column(
+                children: [
+                  InheritedChatTheme.of(context).theme.seenIcon!,
+                  const SizedBox(
+                    height: 8,
+                  ),
+                  Text(
+                    DateFormat.Hm().format(
+                      DateTime.fromMillisecondsSinceEpoch(message.updatedAt!),
+                    ),
+                  ),
+                ],
+              )
             : Image.asset(
                 'assets/icon-seen.png',
                 color: InheritedChatTheme.of(context).theme.primaryColor,
@@ -278,13 +299,10 @@ class Message extends StatelessWidget {
     final _query = MediaQuery.of(context);
     final _user = InheritedUser.of(context).user;
     final _currentUserIsAuthor = _user.id == message.author.id;
-    final _enlargeEmojis =
-        emojiEnlargementBehavior != EmojiEnlargementBehavior.never &&
-            message is types.TextMessage &&
-            isConsistsOfEmojis(
-                emojiEnlargementBehavior, message as types.TextMessage);
-    final _messageBorderRadius =
-        InheritedChatTheme.of(context).theme.messageBorderRadius;
+    final _enlargeEmojis = emojiEnlargementBehavior != EmojiEnlargementBehavior.never &&
+        message is types.TextMessage &&
+        isConsistsOfEmojis(emojiEnlargementBehavior, message as types.TextMessage);
+    final _messageBorderRadius = InheritedChatTheme.of(context).theme.messageBorderRadius;
     final _borderRadius = BorderRadiusDirectional.only(
       bottomEnd: Radius.circular(
         _currentUserIsAuthor
@@ -329,8 +347,8 @@ class Message extends StatelessWidget {
                       ? VisibilityDetector(
                           key: Key(message.id),
                           onVisibilityChanged: (visibilityInfo) =>
-                              onMessageVisibilityChanged!(message,
-                                  visibilityInfo.visibleFraction > 0.1),
+                              onMessageVisibilityChanged!(
+                                  message, visibilityInfo.visibleFraction > 0.1),
                           child: _bubbleBuilder(
                             context,
                             _borderRadius.resolve(Directionality.of(context)),
@@ -353,8 +371,7 @@ class Message extends StatelessWidget {
               padding: InheritedChatTheme.of(context).theme.statusIconPadding,
               child: showStatus
                   ? GestureDetector(
-                      onLongPress: () =>
-                          onMessageStatusLongPress?.call(context, message),
+                      onLongPress: () => onMessageStatusLongPress?.call(context, message),
                       onTap: () => onMessageStatusTap?.call(context, message),
                       child: _statusBuilder(context),
                     )
