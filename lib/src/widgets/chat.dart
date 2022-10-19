@@ -47,7 +47,7 @@ class Chat extends StatefulWidget {
     this.isAttachmentUploading,
     this.isLastPage,
     this.isTextMessageTextSelectable = true,
-    this.l10n = const ChatL10nEn(),
+    this.l10n = const ChatL10nId(),
     required this.messages,
     this.nameBuilder,
     this.onAttachmentPressed,
