@@ -140,8 +140,9 @@ class TextMessage extends StatelessWidget {
               MatchText(
                 onTap: (mail) async {
                   final url = 'mailto:$mail';
-                  if (await canLaunch(url)) {
-                    await launch(url);
+                  final uri = Uri.parse(url);
+                  if (await canLaunchUrl(uri)) {
+                    await launchUrl(uri);
                   }
                 },
                 pattern: regexEmail,
@@ -152,8 +153,9 @@ class TextMessage extends StatelessWidget {
               ),
               MatchText(
                 onTap: (url) async {
-                  if (await canLaunch(url)) {
-                    await launch(url);
+                  final uri = Uri.parse(url);
+                  if (await canLaunchUrl(uri)) {
+                    await launchUrl(uri);
                   }
                 },
                 pattern: regexLink,
