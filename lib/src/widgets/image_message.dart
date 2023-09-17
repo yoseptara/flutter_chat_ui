@@ -105,6 +105,21 @@ class _ImageMessageState extends State<ImageMessage> {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(15),
                 child: Image(
+                  loadingBuilder: (BuildContext context, Widget child,
+                      ImageChunkEvent? loadingProgress) {
+                    if (loadingProgress == null) {
+                      return child;
+                    }
+                    return Center(
+                      child: CircularProgressIndicator(
+                        color: const Color(0xff36C05B),
+                        value: loadingProgress.expectedTotalBytes != null
+                            ? loadingProgress.cumulativeBytesLoaded /
+                            loadingProgress.expectedTotalBytes!
+                            : null,
+                      ),
+                    );
+                  },
                   fit: BoxFit.cover,
                   image: _image!,
                 ),
@@ -165,6 +180,21 @@ class _ImageMessageState extends State<ImageMessage> {
           child: Image(
             fit: BoxFit.contain,
             image: _image!,
+            loadingBuilder: (BuildContext context, Widget child,
+                ImageChunkEvent? loadingProgress) {
+              if (loadingProgress == null) {
+                return child;
+              }
+              return Center(
+                child: CircularProgressIndicator(
+                  color: const Color(0xff36C05B),
+                  value: loadingProgress.expectedTotalBytes != null
+                      ? loadingProgress.cumulativeBytesLoaded /
+                      loadingProgress.expectedTotalBytes!
+                      : null,
+                ),
+              );
+            },
           ),
         ),
       );
